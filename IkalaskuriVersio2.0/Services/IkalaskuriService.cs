@@ -10,7 +10,7 @@ namespace IkalaskuriVersio2._0.Services
     {
         private readonly IKayttoliittyma _ui;
 
-        internal IkalaskuriService(IKayttoliittyma ui)
+        public IkalaskuriService(IKayttoliittyma ui)
         {
             _ui = ui;
         }

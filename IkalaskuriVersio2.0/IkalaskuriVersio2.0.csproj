@@ -9,7 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <InternalsVisibleTo Include="IkalaskuriVersio2.0.Tests"/>	
+	  <InternalsVisibleTo Include="IkalaskuriVersio2.0.Tests"/>
+	  <InternalsVisibleTo Include="DynamicProxyGenAssembly2"/>
   </ItemGroup>
 
   <ItemGroup>
