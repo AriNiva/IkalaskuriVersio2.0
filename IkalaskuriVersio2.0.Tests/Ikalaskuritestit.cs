@@ -50,10 +50,15 @@ namespace IkalaskuriVersio2._0.Tests
 
             mockUI.Setup(ui => ui.LueSyote()).Returns("01.05.2025");
 
-            palvelu.KysyKayttajanSyntymaAika();
+            var syntymaAika = palvelu.KysyKayttajanSyntymaAika();
 
-            mockUI.Verify(ui => ui.Tulosta("Anna syntymäaika muodossa PP.KK.VVVV:"), Times.Once());
+            Assert.Equal(new DateTime(2025, 5, 1), syntymaAika); // Vertailee DateTime vs DateTime
+            mockUI.Verify(ui => ui.Tulosta("Anna syntymäaika muodossa PP.KK.VVVV."), Times.Once());
             mockUI.Verify(ui => ui.Tulosta("Virheellinen päivämäärämuoto! Käytä muotoa PP.KK.VVVV."), Times.Never());
+
+            /* Miksi Assert.Equal(new DateTime(2025, 5, 1), syntymaAika) on oikein:
+               Tämä on oikein, koska molemmat ovat DateTime-tyyppisiä. DateTime ei tallenna päivämäärää missään merkkijonon muodossa 
+               vaan strukturoituna päivämäärä- ja aikadatana. Kun teet new DateTime(2025, 5, 1), se vastaa 01.05.2025.*/
         }
 
         [Fact]
@@ -73,38 +78,15 @@ namespace IkalaskuriVersio2._0.Tests
         [Theory]
         [InlineData("Mies", 78)]
         [InlineData("Nainen", 84)]
-        public void GetElinIanOdote_Palauttaa_Oikean_ElinIanOdotteen(string sukupuoli, int elinIanOdote) 
+        public void Odote_Palauttaa_Oikean_ElinIanOdotteen(string sukupuoli, int elinIanOdote) 
         {
             var (_, palvelu) = LuoTestiYmparisto();
 
-            int tulos = palvelu.GetElinIanOdote(sukupuoli);
+            int tulos = palvelu.Odote(sukupuoli);
 
             Assert.Equal(elinIanOdote, tulos);
         }
 
-        [Fact]
-        public void LaskeJaljellaOlevaAika_Palauttaa_Oikean_Jaljella_Olevan_Ajan() 
-        {
-            var (_, palvelu) = LuoTestiYmparisto();
 
-            /* DateTime.Today antaa tämän päivän päivämäärän, esim 01.05.2025. 
-               .AddYears(-20) vähentää 20 vuotta -> 01.05.2005.
-               Näin saadaan testihenkilölle syntymäaika, josta laskettuna hän olisi nyt 20-vuotias.*/
-            DateTime syntymaAika = DateTime.Today.AddYears(-20);
-
-            // Määritellään eliniän odote 80 vuoteen.
-            int odote = 80;
-
-            /* Kutsutaan LaskeJäljelläOlevaAika-metodia, joka palauttaa tuplen (vuodet, kuukaudet, päivät)
-               Otetaan käyttöön vain vuodet. Muut (kuukaudet, paivat) jätetään huomiotta käyttämällä _ -sijoituksia (ns. discards)*/
-            var (vuodet, _, _) = palvelu.LaskeJaljellaOlevaAika(syntymaAika, odote);
-
-            /* Testi sallii pientä vaihtelua vuosissa (59-61), koska:
-               Vuodessa ei ole aina tasan 365 päivää.
-               Karkausvuodet vaikuttavat DateTime-laskuihin.
-               .Days / 365.25 ei aina anna täsmälleen "vuotta."
-               Jos laskettu vuosimäärä on 59,60 tai 61 -> testi menee läpi.*/
-            Assert.True(vuodet >= 59 && vuodet <= 61);
-        }
     }
 }

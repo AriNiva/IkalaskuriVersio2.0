@@ -17,10 +17,17 @@ namespace IkalaskuriVersio2._0.Services
 
         public void Suorita() 
         {
+            DateTime tanaan = DateTime.Today;
             var sukupuoli = KysyKayttajanSukupuoli();
             var syntymaAika = KysyKayttajanSyntymaAika();
-            var elinIanOdote = GetElinIanOdote(sukupuoli);
-
+            var elinIanOdote = Odote(sukupuoli);
+            var kuolinpaiva = LaskeKuolinPaiva(syntymaAika, elinIanOdote);
+            var erotus = LaskeErotus(kuolinpaiva, tanaan);
+            var vuodet = LaskeKokonaisetVuodet(erotus);
+            var paivatJaljella = LaskePaivatJaljella(erotus, vuodet);
+            var kuukaudet = LaskeKuukaudet(paivatJaljella);
+            var paivat = LaskePaivat(paivatJaljella);
+            MuodostaViesti(kuolinpaiva, tanaan, vuodet, kuukaudet, paivat);
         }
 
         internal string KysyKayttajanSukupuoli() 
@@ -46,24 +53,22 @@ namespace IkalaskuriVersio2._0.Services
             DateTime syntymaAika;
             string syote;
 
-            do 
-            { 
-                _ui.Tulosta("Anna syntymäaika muodossa PP.KK.VVVV");
+            do
+            {
+                _ui.Tulosta("Anna syntymäaika muodossa PP.KK.VVVV.");
                 syote = _ui.LueSyote();
 
-                if (!DateTime.TryParseExact(syote, "dd.MM.yyyy", null, System.Globalization.DateTimeStyles.None, out syntymaAika)) 
+                if (!DateTime.TryParseExact(syote, "dd.MM.yyyy", null, System.Globalization.DateTimeStyles.None, out _))
                 {
                     _ui.Tulosta("Virheellinen päivämäärämuoto! Käytä muotoa PP.KK.VVVV.");
                 }
             }
             while (!DateTime.TryParseExact(syote, "dd.MM.yyyy", null, System.Globalization.DateTimeStyles.None, out syntymaAika));
-
+                
             return syntymaAika;
         }
 
-
-
-        internal int GetElinIanOdote(string sukupuoli) 
+        internal int Odote(string sukupuoli) 
         {
             int elinIanOdote = 0;
 
@@ -79,25 +84,55 @@ namespace IkalaskuriVersio2._0.Services
             return elinIanOdote;
         }
 
-        /* Metodi LaskeJaljellaOlevaAika ottaa vastaan syntymäajan ja elinajan odotteen, laskee arvioidun kuolinpäivän ja kertoo
-           kuinka paljon aikaa on jäljellä tänään.
-
-         * (int vuodet, int kuukaudet, int paivat) on C#:n palautustyyppi (tuple with named elements)
-           Tämä metodi palauttaa kolme lukuarvoa - ne ovat nimeltään vuodet,kuukaudet ja paivat*/
-        internal (int vuodet, int kuukaudet, int paivat) LaskeJaljellaOlevaAika(DateTime syntymaAika, int elinIanOdote) 
+        internal static DateTime LaskeKuolinPaiva(DateTime syntymaAika, int elinIanOdote) 
         {
-            // Lasketaan arvioitu kuolinpäivä ja haetaan tämänhetkinen päivä.
             DateTime kuolinpaiva = syntymaAika.AddYears(elinIanOdote);
-            DateTime tanaan = DateTime.Today;
 
-            // Tarkempi selitys laskemisesta Readme-tiedostossa.
-            TimeSpan erotus = kuolinpaiva - tanaan;
+            return kuolinpaiva;
+        }
+
+        internal TimeSpan LaskeErotus(DateTime kuolinpaiva, DateTime tanaan) 
+        {
+            /* Lasketaan erotus tänään ja odotetun kuolinpäivän välillä(TimeSpan - objektiin)
+               * erotus on TimeSpan, joka kertoo montako päivää on jäljellä */
+            TimeSpan erotus;
+
+            erotus = kuolinpaiva - tanaan;
+            
+            return erotus;
+        }
+
+        internal int LaskeKokonaisetVuodet(TimeSpan erotus) 
+        {
+            // Tässä lasketaan montako kokonaista vuotta jäljellä olevista päivistä saadaan
+
             int vuodet = (int)(erotus.Days / 365.25);
+
+            return vuodet;
+        }
+
+        internal int LaskePaivatJaljella(TimeSpan erotus, int vuodet) 
+        {
+            // Lasketaan, montako päivää jää vielä jäljelle, kun täydet vuodet on ensin otettu pois
             int paivatJaljella = erotus.Days - (int)(vuodet * 365.25);
+
+            return paivatJaljella;
+        }
+
+        internal int LaskeKuukaudet(int paivatJaljella) 
+        {
+            // Nyt jäljelle jääneet päivät jaetaan kuukausiksi
             int kuukaudet = paivatJaljella / 30;
+
+            return kuukaudet;
+        }
+
+        internal int LaskePaivat(int paivatJaljella) 
+        {
+            // Lopuksi katsotaan, montako päivää jää vielä jäljelle, kun kuukaudet on otettu pois
             int paivat = paivatJaljella % 30;
 
-            return (vuodet, kuukaudet, paivat);
+            return paivat;
         }
 
         internal void MuodostaViesti(DateTime kuolinpaiva, DateTime tanaan, int vuodet, int kuukaudet, int paivat) 
