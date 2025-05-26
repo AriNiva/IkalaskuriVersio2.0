@@ -82,7 +82,7 @@ namespace IkalaskuriVersio2._0.Tests
         {
             var (_, palvelu) = LuoTestiYmparisto();
 
-            int tulos = palvelu.Odote(sukupuoli);
+            int tulos = IkalaskuriService.Odote(sukupuoli);
 
             Assert.Equal(elinIanOdote, tulos);
         }
