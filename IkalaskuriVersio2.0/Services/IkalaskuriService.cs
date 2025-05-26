@@ -73,7 +73,7 @@ namespace IkalaskuriVersio2._0.Services
             return DateTime.TryParseExact(syote, "dd.MM.yyyy", null, System.Globalization.DateTimeStyles.None, out syntymaAika);
         }
 
-        internal static int Odote(string sukupuoli) 
+        internal int Odote(string sukupuoli) 
         {
             int elinIanOdote = 0;
 
@@ -90,7 +90,7 @@ namespace IkalaskuriVersio2._0.Services
         }
 
         // Esimerkki laskemisesta Readme-tiedostossa.
-        internal static DateTime LaskeKuolinPaiva(DateTime syntymaAika, int elinIanOdote) 
+        internal DateTime LaskeKuolinPaiva(DateTime syntymaAika, int elinIanOdote) 
         {
             // Lisätään syntymäaikaan eliniänodotteen verran vuosia -> saadaan odotettu kuolinpäivä.
             DateTime kuolinpaiva = syntymaAika.AddYears(elinIanOdote);
@@ -98,7 +98,7 @@ namespace IkalaskuriVersio2._0.Services
             return kuolinpaiva;
         }
 
-        internal static TimeSpan LaskeErotus(DateTime kuolinpaiva, DateTime tanaan) 
+        internal TimeSpan LaskeErotus(DateTime kuolinpaiva, DateTime tanaan) 
         {
             /* Lasketaan erotus tänään ja odotetun kuolinpäivän välillä
                * erotus on TimeSpan, joka kertoo montako päivää on jäljellä */
@@ -109,7 +109,7 @@ namespace IkalaskuriVersio2._0.Services
             return erotus;
         }
 
-        internal static int LaskeKokonaisetVuodet(TimeSpan erotus) 
+        internal int LaskeKokonaisetVuodet(TimeSpan erotus) 
         {
             // Tässä lasketaan montako kokonaista vuotta jäljellä olevista päivistä saadaan
 
@@ -118,7 +118,7 @@ namespace IkalaskuriVersio2._0.Services
             return vuodet;
         }
 
-        internal static int LaskePaivatJaljella(TimeSpan erotus, int vuodet) 
+        internal int LaskePaivatJaljella(TimeSpan erotus, int vuodet) 
         {
             // Lasketaan, montako päivää jää vielä jäljelle, kun täydet vuodet on ensin otettu pois
             int paivatJaljella = erotus.Days - (int)(vuodet * 365.25);

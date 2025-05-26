@@ -1,5 +1,6 @@
 using IkalaskuriVersio2._0.Services;
 using Moq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace IkalaskuriVersio2._0.Tests
 {
@@ -82,11 +83,90 @@ namespace IkalaskuriVersio2._0.Tests
         {
             var (_, palvelu) = LuoTestiYmparisto();
 
-            int tulos = IkalaskuriService.Odote(sukupuoli);
+            var tulos = palvelu.Odote(sukupuoli);
 
-            Assert.Equal(elinIanOdote, tulos);
+            Assert.Equal(tulos, elinIanOdote);
+        }
+
+        [Fact]
+        public void LaskeKuolinPaiva_Palauttaa_Oikean_Paivan() 
+        {
+            var (_, palvelu) = LuoTestiYmparisto();
+
+            DateTime syntymaAika = new DateTime(2025, 5, 1);
+            int odote = 80;
+            DateTime tulos = new DateTime(2105, 5, 1); 
+            
+            var kuolinpaiva = palvelu.LaskeKuolinPaiva(syntymaAika, odote);
+
+            Assert.Equal(tulos, kuolinpaiva); // expected, actual
+        }
+
+        [Theory]
+        [InlineData("2025-05-23", "2026-05-23", 365)]
+        [InlineData("2024-02-28", "2024-02-29", 1)] // karkausp‰iv‰
+        public void LaskeErotus_Palauttaa_Oikean_Paivamaaraerotuksen(string tanaanStr, string kuolinpaivaStr, int odotetutPaivat)
+        {
+            // Arrange
+            var (_, palvelu) = LuoTestiYmparisto();
+
+            // Parsitaan merkkijonot oikeiksi DateTime-olioiksi.
+            DateTime tanaan = DateTime.Parse(tanaanStr);
+            DateTime kuolinpaiva = DateTime.Parse(kuolinpaivaStr);
+
+            // Lasketaan odotettu erotus TimeSpan.FromDays(...) avulla.
+            TimeSpan odotettu = TimeSpan.FromDays(odotetutPaivat);
+
+            // Act
+            var erotus = palvelu.LaskeErotus(kuolinpaiva, tanaan);
+
+            // Assert
+            Assert.Equal(odotettu, erotus);
+        }
+
+        [Fact]
+        public void LaskeKokonaisetVuodet_Palauttaa_Vuodet_Oikein() 
+        {
+            var (_, palvelu) = LuoTestiYmparisto();
+
+            // M‰‰ritell‰‰n kaksi p‰iv‰m‰‰r‰‰.
+            DateTime paiva1 = new DateTime(2015, 5, 1);
+            DateTime paiva2 = new DateTime(2025, 5, 1);
+
+            // Lasketaan p‰iv‰m‰‰rien v‰linen erotus.
+            TimeSpan erotus = paiva2 - paiva1;
+
+            int odotettu = 10;
+
+            var tulos = palvelu.LaskeKokonaisetVuodet(erotus);
+
+            Assert.Equal(odotettu, tulos);
+        }
+
+        [Fact]
+        public void LaskePaivatJaljella_Palauttaa_Paivat_Oikein() 
+        {
+            var (_, palvelu) = LuoTestiYmparisto();
+
+            // M‰‰ritell‰‰n kaksi p‰iv‰m‰‰r‰‰.
+            DateTime paiva1 = new DateTime(2010, 1, 1);
+            DateTime paiva2 = new DateTime(2020, 2, 10); // 10 vuotta + 40 p‰iv‰‰
+
+            // Lasketaan p‰iv‰m‰‰rien v‰linen erotus.
+            TimeSpan erotus = paiva2 - paiva1;
+
+            int vuodet = 10;
+            int odotettu = 40;
+
+            var tulos = palvelu.LaskePaivatJaljella(erotus, vuodet);
+
+            Assert.Equal(odotettu, tulos);
         }
 
 
+
     }
+
+
+
 }
