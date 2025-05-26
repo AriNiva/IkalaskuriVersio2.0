@@ -92,6 +92,7 @@ namespace IkalaskuriVersio2._0.Services
         // Esimerkki laskemisesta Readme-tiedostossa.
         internal static DateTime LaskeKuolinPaiva(DateTime syntymaAika, int elinIanOdote) 
         {
+            // Lisätään syntymäaikaan eliniänodotteen verran vuosia -> saadaan odotettu kuolinpäivä.
             DateTime kuolinpaiva = syntymaAika.AddYears(elinIanOdote);
 
             return kuolinpaiva;
