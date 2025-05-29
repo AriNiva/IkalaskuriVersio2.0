@@ -1,6 +1,5 @@
 using IkalaskuriVersio2._0.Services;
 using Moq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace IkalaskuriVersio2._0.Tests
 {
@@ -163,10 +162,65 @@ namespace IkalaskuriVersio2._0.Tests
             Assert.Equal(odotettu, tulos);
         }
 
+        [Fact]
+        public void LaskeKuukaudet_Palauttaa_Kuukaudet_Oikein()
+        {
+            var (_, palvelu) = LuoTestiYmparisto();
 
+            int paivatJaljella = 60;
+            int odotettu = 2;
+
+            var tulos = palvelu.LaskeKuukaudet(paivatJaljella);
+
+            Assert.Equal(odotettu, tulos);
+        }
+
+        [Fact] 
+        public void LaskePaivat_Palauttaa_Paivat_Oikein() 
+        {
+            var (_, palvelu) = LuoTestiYmparisto();
+
+            int paivatJaljella = 40;
+            int odotettu = 10;
+
+            var tulos = palvelu.LaskePaivat(paivatJaljella);
+
+            Assert.Equal(odotettu, tulos);
+        }
+
+        [Fact]
+        public void MuodostaViesti_Palauttaa_Elinaikaviestin_Jos_Elinika_Ei_Ylittynyt() 
+        {
+            var (mockUI, palvelu) = LuoTestiYmparisto();
+
+            DateTime syntymaAika = new DateTime(2000, 5, 1);
+            DateTime tanaan = new DateTime(2020, 5, 1);
+            DateTime kuolinpaiva = new DateTime(2080, 5, 1);
+            int vuodet = 60;
+            int kuukaudet = 0;
+            int paivat = 0;
+           
+            palvelu.MuodostaViesti(kuolinpaiva, tanaan, vuodet, kuukaudet, paivat);
+            
+            mockUI.Verify(ui => ui.Tulosta("Odotettua elinaikaa jäljellä 60 vuotta 0 kuukautta ja 0 päivää."), Times.Once());
+        }
+
+        [Fact] 
+        public void MuodostaViesti_Palauttaa_Onnittelun_Jos_Elinika_On_Ylittynyt() 
+        {
+            var (mockUI, palvelu) = LuoTestiYmparisto();
+
+            DateTime syntymaAika = new DateTime(1925, 5, 1);
+            DateTime tanaan = new DateTime(2025, 5, 1);
+            DateTime kuolinpaiva = new DateTime(2005, 5, 1);
+            int vuodet = 0;
+            int kuukaudet = 0;
+            int paivat = 0;
+
+            palvelu.MuodostaViesti(kuolinpaiva, tanaan, vuodet, kuukaudet, paivat);
+
+            mockUI.Verify(ui => ui.Tulosta("Onneksi olkoon - olet ylittänyt odotetun eliniän!"), Times.Once());
+        }
 
     }
-
-
-
 }

@@ -126,7 +126,7 @@ namespace IkalaskuriVersio2._0.Services
             return paivatJaljella;
         }
 
-        internal static int LaskeKuukaudet(int paivatJaljella) 
+        internal int LaskeKuukaudet(int paivatJaljella) 
         {
             // Nyt jäljelle jääneet päivät jaetaan kuukausiksi
             int kuukaudet = paivatJaljella / 30;
@@ -134,7 +134,7 @@ namespace IkalaskuriVersio2._0.Services
             return kuukaudet;
         }
 
-        internal static int LaskePaivat(int paivatJaljella) 
+        internal int LaskePaivat(int paivatJaljella) 
         {
             // Lopuksi katsotaan, montako päivää jää vielä jäljelle, kun kuukaudet on otettu pois
             int paivat = paivatJaljella % 30;
