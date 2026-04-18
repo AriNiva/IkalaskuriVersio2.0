@@ -33,33 +33,48 @@ namespace IkalaskuriVersio2._0.Services
             {
                 _ui.Tulosta("Kerro sukupuolesi. (Mies / Nainen).");
                 sukupuoli = _ui.LueSyote();
-                if (sukupuoli != "Mies" && sukupuoli != "Nainen")
+                
+                if (!OnKelvollinenSukupuoli(sukupuoli))
                 {
                     _ui.Tulosta("Virhe: Syötä Mies tai Nainen.");
                 }
             }
-            while (sukupuoli != "Mies" && sukupuoli != "Nainen");
+            while (!OnKelvollinenSukupuoli(sukupuoli));
 
-            return sukupuoli;
+            var s = sukupuoli.Trim().ToLower();
+
+            return char.ToUpper(s[0]) + s.Substring(1);
+        }
+
+        public static bool OnKelvollinenSukupuoli(string syote) 
+        { 
+            if (string.IsNullOrWhiteSpace(syote)) 
+                return false;
+
+            var s = syote.Trim().ToLower();
+            return s == "mies" || s == "nainen";
         }
 
         internal DateTime KysyKayttajanSyntymaAika() 
         {
-            DateTime syntymaAika;
             string syote;
+            DateTime syntymaAika;
+            bool ok;
 
             do
             {
                 _ui.Tulosta("Anna syntymäaika muodossa PP.KK.VVVV.");
                 syote = _ui.LueSyote();
 
-                if (!OnKelvollinenSyntymaAika(syote, out syntymaAika))
+                ok = OnKelvollinenSyntymaAika(syote, out syntymaAika);
+
+                if (!ok)
                 {
                     _ui.Tulosta("Virheellinen päivämäärämuoto! Käytä muotoa PP.KK.VVVV.");
                 }
             }
-            while (!OnKelvollinenSyntymaAika(syote, out syntymaAika));
-                
+            while (!ok);
+
             return syntymaAika;
         }
 
